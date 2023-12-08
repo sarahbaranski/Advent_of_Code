@@ -8,42 +8,61 @@ import (
 	"strings"
 )
 
-func main() {
+const search = string("0123456789")
+
+func extractInput() []byte {
 	body, err := os.ReadFile("text.txt")
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 	}
+	return body
+}
 
-	search := string("0123456789")
-	var left, right string
-	var combined []string
-	for _, lines := range strings.Split(string(body), "\n") {
+func searchLeftToRight(line string) string {
+	for i := 0; i < len(line); i++ {
+		currentChar := string(line[i])
 
-		for i := 0; i < len(lines); i++ {
-			if strings.Contains(search, string(lines[i])) {
-				right = string(lines[i])
-			}
+		if strings.Contains(search, currentChar) {
+			return currentChar
 		}
-
-		for i := len(lines) - 1; i >= 0; i-- {
-			if strings.Contains(search, string(lines[i])) {
-				left = string(lines[i])
-			}
-		}
-
-		combined = append(combined, left+right)
 	}
+	return ""
+}
 
-	total := 0
+func searchRightToLeft(line string) string {
+	for i := len(line) - 1; i >= 0; i-- {
+		currentChar := string(line[i])
 
+		if strings.Contains(search, currentChar) {
+			return currentChar
+		}
+	}
+	return ""
+}
+
+func sumInts(combined []string) (int, error) {
+	sum := 0
 	for _, str := range combined {
 		n, err := strconv.Atoi(string(str))
 		if err != nil {
 			log.Fatalf("unable to convert %v", err)
-		} else {
-			total += n
 		}
+
+		sum += n
+	}
+	return sum, nil
+}
+
+func main() {
+	// extracts input text into byte[]
+	input := extractInput()
+
+	var combined []string
+	for _, line := range strings.Split(string(input), "\n") {
+		numString := searchLeftToRight(line) + searchRightToLeft(line)
+		combined = append(combined, numString)
 	}
 
+	total, _ := sumInts(combined)
 	fmt.Println(total)
 }
