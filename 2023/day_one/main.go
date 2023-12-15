@@ -8,36 +8,13 @@ import (
 	"strings"
 )
 
-const search = string("0123456789")
-
 func extractInput() []byte {
 	body, err := os.ReadFile("text.txt")
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 	}
+
 	return body
-}
-
-func searchLeftToRight(line string) string {
-	for i := 0; i < len(line); i++ {
-		currentChar := string(line[i])
-
-		if strings.Contains(search, currentChar) {
-			return currentChar
-		}
-	}
-	return ""
-}
-
-func searchRightToLeft(line string) string {
-	for i := len(line) - 1; i >= 0; i-- {
-		currentChar := string(line[i])
-
-		if strings.Contains(search, currentChar) {
-			return currentChar
-		}
-	}
-	return ""
 }
 
 func sumInts(combined []string) (int, error) {
@@ -50,19 +27,69 @@ func sumInts(combined []string) (int, error) {
 
 		sum += n
 	}
+
 	return sum, nil
+}
+
+func searchForNumbers(input []byte) []string {
+	var combined []string
+	right := -1
+	left := 0
+
+	numbers := map[string]int{
+		"zero":  0,
+		"one":   1,
+		"two":   2,
+		"three": 3,
+		"four":  4,
+		"five":  5,
+		"six":   6,
+		"seven": 7,
+		"eight": 8,
+		"nine":  9,
+		"1":     1,
+		"2":     2,
+		"3":     3,
+		"4":     4,
+		"5":     5,
+		"6":     6,
+		"7":     7,
+		"8":     8,
+		"9":     9,
+	}
+
+	for _, line := range strings.Split(string(input), "\n") {
+		for i := 0; i < len(line); i++ {
+			word := line[i:]
+			for k, v := range numbers {
+				if strings.HasPrefix(word, k) {
+					right = v
+					break
+				}
+			}
+		}
+
+		for i := len(line); i >= 0; i-- {
+			word := line[i:]
+			for k, v := range numbers {
+				if strings.HasPrefix(word, k) {
+					left = v
+					break
+				}
+			}
+		}
+
+		combinedString := strconv.Itoa(left) + strconv.Itoa(right)
+		combined = append(combined, combinedString)
+	}
+
+	return combined
 }
 
 func main() {
 	// extracts input text into byte[]
 	input := extractInput()
 
-	var combined []string
-	for _, line := range strings.Split(string(input), "\n") {
-		numString := searchLeftToRight(line) + searchRightToLeft(line)
-		combined = append(combined, numString)
-	}
-
-	total, _ := sumInts(combined)
+	total, _ := sumInts(searchForNumbers(input))
 	fmt.Println(total)
 }
