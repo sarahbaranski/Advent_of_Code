@@ -8,15 +8,9 @@ import (
 	"strings"
 )
 
-// max color dice
-var blue = 14
-var red = 12
-var green = 13
-
 func getSumIds(rolls string) int {
 	gameInput := strings.Split(rolls, ": ")
-	gameId := strings.Split(gameInput[0], " ")
-	idNum, _ := strconv.Atoi(gameId[1])
+	var maxBlue, maxGreen, maxRed int
 
 	for _, pull := range strings.Split(strings.Trim(gameInput[1], " "), ";") {
 		for _, dice := range strings.Split(pull, ",") {
@@ -26,22 +20,22 @@ func getSumIds(rolls string) int {
 
 			switch di[1] {
 			case "blue":
-				if amount > blue {
-					return 0
+				if amount > maxBlue {
+					maxBlue = amount
 				}
 			case "green":
-				if amount > green {
-					return 0
+				if amount > maxGreen {
+					maxGreen = amount
 				}
 			case "red":
-				if amount > red {
-					return 0
+				if amount > maxRed {
+					maxRed = amount
 				}
 			}
 		}
 	}
 
-	return idNum
+	return maxBlue * maxRed * maxGreen
 }
 
 func main() {
